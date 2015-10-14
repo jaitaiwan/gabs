@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"io"
 	"strings"
 )
 
@@ -503,6 +504,22 @@ func ParseJSONFile(path string) (*Container, error) {
 		return nil, err
 	}
 	return nil, ErrInvalidPath
+}
+
+/*
+ParseJSONBody - Read an io Byte Reader into a representation of the parsed JSON.
+*/
+func ParseJSONBody(sample io.Reader) (*Container, error) {
+	var gabs Container
+	json_decoder := json.NewDecoder(sample)
+
+	if err := json_decoder.Decode(&gabs.object); err != nil {
+		return nil, err
+	}
+	if _, ok := gabs.object.(map[string]interface{}); ok {
+		return &gabs, nil
+	}
+	return nil, ErrInvalidInputText
 }
 
 /*---------------------------------------------------------------------------------------------------
